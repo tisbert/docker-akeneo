@@ -5,7 +5,7 @@ RUN apt-get update \
     && apt-get install -y -o Dpkg::Options::="--force-confnew" --no-install-recommends git nano libicu-dev libmcrypt-dev libpng-dev libcurl3-dev libxml2-dev libjpeg-dev libpng-dev libssl-dev mysql-client \
     && docker-php-ext-configure intl \
     && docker-php-ext-configure gd --enable-gd-native-ttf --with-jpeg-dir=/usr/lib/x86_64-linux-gnu --with-png-dir=/usr/lib/x86_64-linux-gnu \
-    && docker-php-ext-install mbstring pdo_mysql intl mcrypt gd exif curl soap zip opcache bcmath \
+    && docker-php-ext-install mbstring pdo_mysql mysqli intl mcrypt gd exif curl soap zip opcache bcmath \
     && pecl install -f mongo \
     && pecl install apcu-4.0.11 \
     && docker-php-ext-enable mongo apcu \
