@@ -20,17 +20,11 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && rm -f /var/cache/apt/*.bin
 
+COPY setup/ /
+
 RUN curl -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/local/bin/composer \
-    && mkdir /usr/local/etc/php/cli \
-    && mkdir /usr/local/etc/php/cli/conf.d \
     && echo apc.enable_cli=1 > /usr/local/etc/php/cli/conf.d/enable-apc-cli.ini
-
-COPY php.ini /usr/local/etc/php/php.ini
-COPY php.ini /usr/local/etc/php/cli/php.ini
-COPY php.custom.conf.d /usr/local/etc/php/custom.conf.d
-COPY vhost.conf /etc/apache2/sites-available/akeneo_pim.conf
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
 RUN mkdir -p /var/www
 RUN cd /var/www && rm -rf html && curl -sL http://download.akeneo.com/pim-community-standard-v1.6-latest.tar.gz | tar -xz && mv pim* html
@@ -43,7 +37,7 @@ WORKDIR /var/www/html
 
 EXPOSE 80
 
-VOLUME /tmp/pim
+VOLUME /tmp/pim /var/www/html/app/cache /var/www/html/app/file_storage /var/www/html/app/logs /var/log/apache2
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
 

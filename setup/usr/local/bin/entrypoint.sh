@@ -19,6 +19,9 @@ $file = file_get_contents($path);
 foreach ($confVars as $confVar) {
   $envVar = strtoupper($confVar);
   if (($envValue = getenv($envVar)) !== false) {
+    if($confVar == 'secret'){
+        $envValue = uniqid();
+    }
     $pattern = '/^(\s*' . preg_quote($confVar) . '):.+$/m';
     if (preg_match($pattern, $file)) {
       $file = preg_replace($pattern, '$1: ' . $envValue, $file, 1);
@@ -37,7 +40,6 @@ if [ -z "$ENV" ]; then
 fi
 
 cp /usr/local/etc/php/custom.conf.d/$ENV.ini /usr/local/etc/php/conf.d/akeneo_pim.ini
-echo "memory_limit=512M" >> /usr/local/etc/php/conf.d/akeneo_pim.ini
 
 if [ ! -z "$ON_READY" ]; then
   eval "$ON_READY"
