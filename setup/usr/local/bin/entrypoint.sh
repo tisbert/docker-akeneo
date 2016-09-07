@@ -57,8 +57,11 @@ if [ ! -d "app/archive/" ]; then
     mkdir app/archive/
 fi
 
-if [ ! -d "app/file_storage/catalog/" ]; then
+if [ ! -d "app/file_storage/" ]; then
     mkdir app/file_storage/
+fi
+
+if [ ! -d "app/file_storage/catalog/" ]; then
     mkdir app/file_storage/catalog/
 fi
 
