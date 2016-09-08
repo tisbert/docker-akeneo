@@ -1,6 +1,35 @@
 #!/bin/bash
 set -e
 
+if [ -z "$ENV" ]; then
+  ENV="production"
+fi
+
+cp /usr/local/etc/php/custom.conf.d/$ENV.ini /usr/local/etc/php/conf.d/akeneo_pim.ini
+
+if [ ! -z "$ON_READY" ]; then
+  eval "$ON_READY"
+fi
+
+echo "Waiting for database"
+curl -sL "https://raw.githubusercontent.com/netresearch/retry/master/retry" -o /usr/local/bin/retry
+chmod +x /usr/local/bin/retry
+retry "mysql -e 'SELECT 1' -h $DATABASE_HOST -u $DATABASE_USER -p$DATABASE_PASSWORD $DATABASE_NAME"
+
+echo '<?php $m = new MongoDB\Driver\Manager("'$MONGODB_SERVER'"); $command = new MongoDB\Driver\Command(["ping" => 1]); $m->executeCommand("'$MONGODB_DATABASE'", $command);' > /var/www/mongo_check.php
+retry "php -f /var/www/mongo_check.php"
+rm /var/www/mongo_check.php
+
+echo 'Add Support for MongoDb'
+composer config github-oauth.github.com "$GITHUB_TOKEN"
+composer install --optimize-autoloader --prefer-dist
+composer require alcaeus/mongo-php-adapter --ignore-platform-reqs
+composer --prefer-dist require doctrine/mongodb-odm-bundle 3.2.0
+composer config --unset github-oauth.github.com
+
+echo 'Activate MongoDB'
+sed -ri "s/^(\s*)\/\/ (.*)DoctrineMongoDBBundle\(\),/\1\2DoctrineMongoDBBundle(),/" app/AppKernel.php
+
 php << 'PHP'
 <?php
 $confVars = array(
@@ -11,7 +40,10 @@ $confVars = array(
   'database_user',
   'database_password',
   'locale',
-  'secret'
+  'secret',
+  'pim_catalog_product_storage_driver',
+  'mongodb_server',
+  'mongodb_database',
 );
 
 $path = 'app/config/parameters.yml';
@@ -34,21 +66,6 @@ foreach ($confVars as $confVar) {
 file_put_contents($path, $file);
 ?>
 PHP
-
-if [ -z "$ENV" ]; then
-  ENV="production"
-fi
-
-cp /usr/local/etc/php/custom.conf.d/$ENV.ini /usr/local/etc/php/conf.d/akeneo_pim.ini
-
-if [ ! -z "$ON_READY" ]; then
-  eval "$ON_READY"
-fi
-
-echo "Waiting for database"
-curl -sL "https://raw.githubusercontent.com/netresearch/retry/master/retry" -o /usr/local/bin/retry
-chmod +x /usr/local/bin/retry
-retry "mysql -e 'SELECT 1' -h $DATABASE_HOST -u $DATABASE_USER -p$DATABASE_PASSWORD $DATABASE_NAME"
 
 php app/console cache:clear --env=prod
 

@@ -37,7 +37,7 @@ WORKDIR /var/www/html
 
 EXPOSE 80
 
-VOLUME /tmp/pim /var/www/html/app/cache /var/www/html/app/file_storage /var/www/html/app/logs /var/log/apache2
+VOLUME /tmp/pim /var/www/html/app/cache /var/www/html/app/file_storage /var/www/html/app/logs /var/log/apache2 /root/.composer/cache
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
