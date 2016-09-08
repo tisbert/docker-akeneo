@@ -1,14 +1,14 @@
-FROM php:5.6.25-apache
+FROM php:7.0.10-apache
 
 RUN apt-get update \
     && apt-get upgrade -y -o Dpkg::Options::="--force-confnew" --no-install-recommends \
-    && apt-get install -y -o Dpkg::Options::="--force-confnew" --no-install-recommends git nano libicu-dev libmcrypt-dev libpng-dev libcurl3-dev libxml2-dev libjpeg-dev libpng-dev libssl-dev mysql-client \
+    && apt-get install -y -o Dpkg::Options::="--force-confnew" --no-install-recommends git nano libicu-dev libmcrypt-dev libpng-dev libcurl3-dev libxml2-dev libjpeg-dev libpng-dev libssl-dev mysql-client pkg-config \
     && docker-php-ext-configure intl \
     && docker-php-ext-configure gd --enable-gd-native-ttf --with-jpeg-dir=/usr/lib/x86_64-linux-gnu --with-png-dir=/usr/lib/x86_64-linux-gnu \
     && docker-php-ext-install mbstring pdo_mysql mysqli intl mcrypt gd exif curl soap zip opcache bcmath \
-    && pecl install -f mongo \
-    && pecl install apcu-4.0.11 \
-    && docker-php-ext-enable mongo apcu \
+    && pecl install -f mongodb \
+    && pecl install apcu \
+    && docker-php-ext-enable mongodb apcu \
     && apt-get autoremove \
     && apt-get clean -y \
     && rm -rf /tmp/* \
