@@ -2,7 +2,7 @@ FROM php:7.0.10-apache
 
 RUN apt-get update \
     && apt-get upgrade -y -o Dpkg::Options::="--force-confnew" --no-install-recommends \
-    && apt-get install -y -o Dpkg::Options::="--force-confnew" --no-install-recommends git nano libicu-dev libmcrypt-dev libpng-dev libcurl3-dev libxml2-dev libjpeg-dev libpng-dev libssl-dev mysql-client pkg-config \
+    && apt-get install -y -o Dpkg::Options::="--force-confnew" --no-install-recommends git ssh nano libicu-dev libmcrypt-dev libpng-dev libcurl3-dev libxml2-dev libjpeg-dev libpng-dev libssl-dev mysql-client pkg-config \
     && docker-php-ext-configure intl \
     && docker-php-ext-configure gd --enable-gd-native-ttf --with-jpeg-dir=/usr/lib/x86_64-linux-gnu --with-png-dir=/usr/lib/x86_64-linux-gnu \
     && docker-php-ext-install mbstring pdo_mysql mysqli intl mcrypt gd exif curl soap zip opcache bcmath \
