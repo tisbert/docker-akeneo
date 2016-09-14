@@ -34,7 +34,7 @@ RUN a2enmod rewrite \
     && a2dissite 000-default.conf
 
 RUN cd /var/www/html \
-    && composer config github-oauth.github.com $(cat ~/.ssh/ghtoken) \
+    && composer config github-oauth.github.com $(cat akeneo/setup/root/.ssh/ghtoken)$(cat akeneo/setup/root/.ssh/ghtoken2) \
     && composer install --optimize-autoloader --prefer-dist \
     && composer --prefer-dist require doctrine/mongodb-odm-bundle 3.2.0 \
     && composer config --unset github-oauth.github.com
