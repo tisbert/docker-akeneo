@@ -33,6 +33,29 @@ RUN a2enmod rewrite \
     && a2ensite akeneo_pim \
     && a2dissite 000-default.conf
 
+RUN cd /var/www/html \
+    && composer config github-oauth.github.com "9b5a6885f569e34684746977c239c66001c15e17" \
+    && composer install --optimize-autoloader --prefer-dist \
+    && composer require alcaeus/mongo-php-adapter --ignore-platform-reqs \
+    && composer --prefer-dist require doctrine/mongodb-odm-bundle 3.2.0 \
+    && composer config --unset github-oauth.github.com
+
+RUN cd /var/www/html \
+    && ssh-keyscan -t rsa bitbucket.org >> ~/.ssh/known_hosts \
+    && chmod 700 ~/.ssh/id_rsa \
+    && sed -ri 's!"repositories": \[!"repositories": \[\{"type": "vcs","url": "git@bitbucket.org:netresearch/netresearch_metricexpander.git"\},!' composer.json \
+    && sed -ri 's!"repositories": \[!"repositories": \[\{"type": "vcs","url": "git@bitbucket.org:netresearch/blfgroup_theme.git"\},!' composer.json \
+    && sed -ri 's!"require": \{!"require": \{"netresearch/metric-expander": "dev-master",!' composer.json \
+    && sed -ri 's!"require": \{!"require": \{"netresearch/blf-theme": "dev-master",!' composer.json
+
+RUN cd /var/www/html \
+    && rm -Rf app/cache/* \
+    && composer update \
+    && sed -ri 's!\/\/ your app bundles should be registered here!\/\/ your app bundles should be registered here\n new Netresearch\\Bundle\\MetricExpanderBundle\\NrMetricsBundle\(\),!' app/AppKernel.php \
+    && sed -ri 's!\/\/ your app bundles should be registered here!\/\/ your app bundles should be registered here\n new Netresearch\\Bundle\\UIBundle\\NetresearchUIBundle\(\),!' app/AppKernel.php \
+    && sed -ri "s/^(\s*)\/\/ (.*)DoctrineMongoDBBundle\(\),/\1\2DoctrineMongoDBBundle(),/" app/AppKernel.php
+
+
 WORKDIR /var/www/html
 
 EXPOSE 80
