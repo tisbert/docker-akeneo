@@ -16,9 +16,10 @@ curl -sL "https://raw.githubusercontent.com/netresearch/retry/master/retry" -o /
 chmod +x /usr/local/bin/retry
 retry "mysql -e 'SELECT 1' -h $DATABASE_HOST -u $DATABASE_USER -p$DATABASE_PASSWORD $DATABASE_NAME"
 
-echo '<?php $m = new MongoDB\Driver\Manager("'$MONGODB_SERVER'"); $command = new MongoDB\Driver\Command(["ping" => 1]); $m->executeCommand("'$MONGODB_DATABASE'", $command);' > /var/www/mongo_check.php
-retry "php -f /var/www/mongo_check.php"
-rm /var/www/mongo_check.php
+#echo '<?php $m = new MongoDB\Driver\Manager("'$MONGODB_SERVER'"); $command = new MongoDB\Driver\Command(["ping" => 1]); $m->executeCommand("'$MONGODB_DATABASE'", $command);' > /var/www/mongo_check.php
+#retry "php -f /var/www/mongo_check.php"
+#rm /var/www/mongo_check.php
+
 
 echo 'Configure Akeneo System'
 php << 'PHP'
@@ -69,6 +70,14 @@ fi
 
 if [ ! -d "app/file_storage/catalog/" ]; then
     mkdir app/file_storage/catalog/
+fi
+
+if [ ! -d "/tmp/pim/" ]; then
+    mkdir /tmp/pim/
+fi
+
+if [ ! -d "/tmp/pim/file_storage/" ]; then
+    mkdir /tmp/pim/file_storage/
 fi
 
 php app/console pim:installer:check-requirements --env=prod
